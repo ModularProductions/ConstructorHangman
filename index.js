@@ -25,13 +25,15 @@ function playGame() {
       {
         name: "guessedChar",
         message: "Guess a letter!"
+        // validate option
       }
     ]).then(function(answer) {
-      if (answer.guessedChar === "exit") {return};
-      // if (answer.guessedChar.length > 1 ) {
-      //   console.log("\nEnter a single letter only, please.");
-      //   playRound();
-      // }
+      if (answer.guessedChar === "exit") {console.log(""); return};
+      if (answer.guessedChar.length > 1 ) {
+        console.log("\nEnter a single letter only, please.\n");
+        playRound();
+        return;
+      }
       guessStatus = color.red("Incorrect!");
       for (var i = 0; i < gameWord.letters.length; i++) {
         if (gameWord.letters[i].compare(answer.guessedChar) === true) {
