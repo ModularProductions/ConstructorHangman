@@ -12,17 +12,8 @@ function Word(arr) {
     this.letters.forEach(function(letter) {
       str += (letter.toString() + " ");
     });
-    console.log(str);
+    console.log("\n"+str+"\n");
   }
 }
 
 module.exports = Word;
-
-
-// var a = new Letter("a");
-// var b = new Letter("b");
-// var c = new Letter("c");
-
-// var word = new Word("punk");
-
-// word.display();

@@ -1,12 +1,14 @@
 var inquirer = require("inquirer");
+var color = require('bash-color');
 var Word = require("./word.js");
-var words = require("./words.js");
-var hardcore = require("./hardcore.js");
+var library = require("./library.js");
 var gameWord;
+var guessStatus = "";
+var score = 0;
+
 
 function selectWord(library) {
   var selectedWord = library[Math.floor(Math.random() * library.length)];
-  console.log("selectedWord =", selectedWord);
   var letters = [];
   for (var i = 0; i < selectedWord.length; i++) {
     letters.push(selectedWord.charAt(i));
@@ -15,24 +17,58 @@ function selectWord(library) {
 }
 
 function playGame() {
-  gameWord = new Word(selectWord(words));
+  gameWord = new Word(selectWord(library));
+  var strikes = 8;
   gameWord.display();
-  inquirer.prompt([
-    {
-      name: "letter",
-      message: "Guess a letter!"
-    }
-  ]).then(function(answer) {
-    gameWord.letters.forEach(function(value) {
-      value.compare(answer);
-      console.log("this =", value);
+  function playRound() {
+    inquirer.prompt([
+      {
+        name: "guessedChar",
+        message: "Guess a letter!"
+      }
+    ]).then(function(answer) {
+      if (answer.guessedChar === "exit") {return};
+      // if (answer.guessedChar.length > 1 ) {
+      //   console.log("\nEnter a single letter only, please.");
+      //   playRound();
+      // }
+      guessStatus = color.red("Incorrect!");
+      for (var i = 0; i < gameWord.letters.length; i++) {
+        if (gameWord.letters[i].compare(answer.guessedChar) === true) {
+          if (gameWord.letters[i].alreadyGuessed === true) {
+            guessStatus = color.yellow("You've already guessed that letter!");
+          } else {
+            guessStatus = color.green("Correct!");
+            gameWord.letters[i].alreadyGuessed = true;
+          }
+        }
+      }
+      gameWord.display();
+      console.log(guessStatus,"\n");
+      if (guessStatus === color.red("Incorrect!")) {
+        strikes--;
+        if (strikes === 0) {
+          console.log(color.red("You've lost! Game over.\n", true));
+          return;
+        }
+        console.log(color.red(strikes, true)+color.red(" guesses remaining!\n"));
+      }
+      function isGuessed(value) {
+        if (value.guessed) {
+          return true;
+        }
+      }
+      if (gameWord.letters.every(isGuessed)) {
+        score++;
+        console.log(color.green("You've won ", true)+color.blue(score)+color.green(" games! Here's the next word. (Type 'exit' to quit.)", true));
+        playGame();
+      } else {
+        playRound();
+      }
     })
-    console.log("gameWord =", gameWord);
-    console.log("gameWord.letters =", gameWord.letters);
-    gameWord.display();
-  })
-
+  }
+  playRound();
 }
 
-console.log("\nHere we go!");
+console.log("\nHere we go! (Type 'exit' to quit.)");
 playGame();
